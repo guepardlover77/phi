@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcul du pHi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a90e2;
+        }
+
+        #peptide {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 80%;
+            margin: 0 auto 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s ease;
+        }
+
+        th {
+            background-color: #4a90e2;
+            color: white;
+            border-top: 2px solid #3b75c3;
+            border-bottom: 2px solid #3b75c3;
+        }
+
+        td:hover {
+            background-color: #f1f1f1;
+        }
+
+        input[type="text"] {
+            width: 30px;
+            padding: 5px;
+            font-size: 1em;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        input.correct {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+
+        input.incorrect {
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+
+        button {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 10px;
+            font-size: 1em;
+            color: white;
+            background-color: #4a90e2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #3b75c3;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Calcul du pHi</h1>
+
+    <p id="peptide"></p>
+
+    <table id="chargeTable"></table>
+
+    <button onclick="calculateAndCorrect()">Calculer et Corriger le pHi</button>
+
+    <script>
+        const pKaData = {
+            'COOH': 3.0,
+            'NH3+': 8.0,
+            'Asp': 4.0,
+            'Glu': 4.0,
+            'His': 6.0,
+            'Tyr': 10.0,
+            'Lys': 10.5,
+            'Arg': 12.5
+        };
+
+        const aminoAcids = ['Gly', 'Ala', 'Val', 'Leu', 'Ile', 'Met', 'Phe', 'Tyr', 'Trp', 'Ser', 'Thr', 'Cys', 'Pro', 'Asn', 'Gln', 'Asp', 'Glu', 'Lys', 'Arg', 'His'];
+        let peptide = generatePeptide(5);
+        let pKaValues = getpKaValues(peptide);
+
+        document.getElementById('peptide').textContent = `Peptide Généré : ${peptide.join('-')}`;
+
+        generateTable(pKaValues);
+
+        function generatePeptide(length) {
+            let peptide = [];
+            for (let i = 0; i < length; i++) {
+                let randomIndex = Math.floor(Math.random() * aminoAcids.length);
+                peptide.push(aminoAcids[randomIndex]);
+            }
+            return peptide;
+        }
+
+        function getpKaValues(peptide) {
+            let pKaValues = [pKaData['COOH']]; 
+            peptide.forEach(aa => {
+                if (pKaData[aa]) pKaValues.push(pKaData[aa]);
+            });
+            pKaValues.push(pKaData['NH3+']);
+            return [...new Set(pKaValues)].sort((a, b) => a - b);
+        }
+
+        function generateTable(pKaValues) {
+            let table = document.getElementById('chargeTable');
+            let headerRow = table.insertRow();
+            headerRow.insertCell().textContent = "Groupement";
+
+            pKaValues.forEach(pKa => {
+                let cell = headerRow.insertCell();
+                cell.textContent = pKa;
+            });
+
+            let peptideGroups = ['COOH']; 
+            peptide.forEach(aa => {
+                if (pKaData[aa]) peptideGroups.push(aa);
+            });
+            peptideGroups.push('NH3+');
+
+            peptideGroups.forEach(group => {
+                let row = table.insertRow();
+                let cell = row.insertCell();
+                cell.textContent = group; 
+
+                pKaValues.forEach(pKa => {
+                    let inputCell = row.insertCell();
+                    let input = document.createElement('input');
+                    input.type = 'text';
+                    input.style.width = '30px';
+                    input.setAttribute('data-group', group);
+                    input.setAttribute('data-pKa', pKa);
+                    inputCell.appendChild(input);
+                });
+            });
+        }
+
+        function calculateAndCorrect() {
+            let inputs = document.querySelectorAll('input');
+            let errors = 0;
+
+            inputs.forEach(input => {
+                let group = input.getAttribute('data-group');
+                let pKa = parseFloat(input.getAttribute('data-pKa'));
+                let expectedValue = determineCharge(group, pKa);
+                let userValue = input.value.trim();
+
+                if (userValue === expectedValue) {
+                    input.classList.add('correct');
+                    input.classList.remove('incorrect');
+                } else {
+                    input.classList.add('incorrect');
+                    input.classList.remove('correct');
+                    errors++;
+                }
+            });
+
+            if (errors === 0) {
+                alert('Tout est correct !');
+            } else {
+                alert(`${errors} erreurs trouvées.`);
+            }
+        }
+
+        function determineCharge(group, pKa) {
+            if (group === 'COOH') {
+                return pKa < pKaData['COOH'] ? '0' : '-';
+            }
+            if (group === 'NH3+') {
+                return pKa < pKaData['NH3+'] ? '+' : '0';
+            }
+            if (group === 'His') {
+                return pKa < pKaData['His'] ? '+' : '0';
+            }
+            if (group === 'Tyr') {
+                return pKa < pKaData['Tyr'] ? '0' : '-';
+            }
+            if (group === 'Arg') {
+                return pKa < pKaData['Arg'] ? '+' : '0';
+            }
+            if (group === 'Lys') {
+                return pKa < pKaData['Lys'] ? '+' : '0';
+            }
+            if (group === 'Asp') {
+                return pKa < pKaData['Asp'] ? '0' : '-';
+            }
+            if (group === 'Glu') {
+                return pKa < pKaData['Glu'] ? '0' : '-';
+            }
+
+            return '-';
+        }
+    </script>
+</body>
+</html>
