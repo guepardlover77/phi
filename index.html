@@ -244,4 +244,32 @@
 
         function determineCharge(group, pKa) {
             if (group === 'COOH') {
-               
+                return pKa < pKaData['COOH'] ? '0' : '-';
+            }
+            if (group === 'NH3+') {
+                return pKa < pKaData['NH3+'] ? '+' : '0';
+            }
+            if (group === 'His') {
+                return pKa < pKaData['His'] ? '+' : '0';
+            }
+            if (group === 'Tyr') {
+                return pKa < pKaData['Tyr'] ? '0' : '-';
+            }
+            if (group === 'Arg') {
+                return pKa < pKaData['Arg'] ? '+' : '0';
+            }
+            if (group === 'Lys') {
+                return pKa < pKaData['Lys'] ? '+' : '0';
+            }
+            if (group === 'Asp') {
+                return pKa < pKaData['Asp'] ? '0' : '-';
+            }
+            if (group === 'Glu') {
+                return pKa < pKaData['Glu'] ? '0' : '-';
+            }
+
+            return '-';
+        }
+    </script>
+</body>
+</html>
