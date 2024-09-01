@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calcul du pHi</title>
-    <p>Coucou mes petits LAS !! Je m'ennuyais pendant mes parties de valorant donc j'ai codé ça pour vous entraîner aux calculs de pHi ! Vous avez juste à refraichir la page pour 
-    faire apparaître un nouveau peptide (et donc un nouveau tableau). Je vous laisse le loisir de deviner les groupements spécifiques aux acides aminés générés dans le peptide ainis que
-    la traduction de la nomenclature en 3 lettres vers le véritable acide aminé ;)
+    <p>Coucou mes petits LAS !! Je m'ennuyais pendant mes parties de Valorant donc j'ai codé ça pour vous entraîner aux calculs de pHi ! Vous avez juste à rafraîchir la page pour faire apparaître un nouveau peptide (et donc un nouveau tableau). Je vous laisse le loisir de deviner les groupements spécifiques aux acides aminés générés dans le peptide ainsi que la traduction de la nomenclature en 3 lettres vers le véritable acide aminé ;)
     Venez me dire sur @les_glycerhums si vous souhaitez d'autres fonctionnalités sur le site !!!!</p>
     <style>
         body {
@@ -131,12 +129,12 @@
         }
 
         function getpKaValues(peptide) {
-            let pKaValues = [pKaData['COOH']]; 
+            let pKaValues = [{'group': 'COOH', 'pKa': pKaData['COOH']}]; 
             peptide.forEach(aa => {
-                if (pKaData[aa]) pKaValues.push(pKaData[aa]);
+                if (pKaData[aa]) pKaValues.push({'group': aa, 'pKa': pKaData[aa]});
             });
-            pKaValues.push(pKaData['NH3+']);
-            return [...new Set(pKaValues)].sort((a, b) => a - b);
+            pKaValues.push({'group': 'NH3+', 'pKa': pKaData['NH3+']});
+            return pKaValues.sort((a, b) => a.pKa - b.pKa);
         }
 
         function generateTable(pKaValues) {
@@ -144,29 +142,29 @@
             let headerRow = table.insertRow();
             headerRow.insertCell().textContent = "Groupement";
 
-            pKaValues.forEach(pKa => {
+            pKaValues.forEach(pKaObj => {
                 let cell = headerRow.insertCell();
-                cell.textContent = pKa;
+                cell.textContent = `${pKaObj.pKa} (${pKaObj.group})`;
             });
 
-            let peptideGroups = ['COOH']; 
+            let peptideGroups = [{'group': 'COOH', 'pKa': pKaData['COOH']}]; 
             peptide.forEach(aa => {
-                if (pKaData[aa]) peptideGroups.push(aa);
+                if (pKaData[aa]) peptideGroups.push({'group': aa, 'pKa': pKaData[aa]});
             });
-            peptideGroups.push('NH3+');
+            peptideGroups.push({'group': 'NH3+', 'pKa': pKaData['NH3+']});
 
-            peptideGroups.forEach(group => {
+            peptideGroups.forEach(groupObj => {
                 let row = table.insertRow();
                 let cell = row.insertCell();
-                cell.textContent = group; 
+                cell.textContent = groupObj.group; 
 
-                pKaValues.forEach(pKa => {
+                pKaValues.forEach(pKaObj => {
                     let inputCell = row.insertCell();
                     let input = document.createElement('input');
                     input.type = 'text';
                     input.style.width = '30px';
-                    input.setAttribute('data-group', group);
-                    input.setAttribute('data-pKa', pKa);
+                    input.setAttribute('data-group', groupObj.group);
+                    input.setAttribute('data-pKa', pKaObj.pKa);
                     inputCell.appendChild(input);
                 });
             });
