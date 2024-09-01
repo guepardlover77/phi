@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calcul du pHi</title>
-    <p>Coucou mes petits LAS !! Je m'ennuyais pendant mes parties de Valorant donc j'ai codé ça pour vous entraîner aux calculs de pHi ! Vous avez juste à rafraîchir la page pour faire apparaître un nouveau peptide (et donc un nouveau tableau). Je vous laisse le loisir de deviner les groupements spécifiques aux acides aminés générés dans le peptide ainsi que la traduction de la nomenclature en 3 lettres vers le véritable acide aminé ;)
-    Venez me dire sur @les_glycerhums si vous souhaitez d'autres fonctionnalités sur le site !!!!</p>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -61,12 +59,12 @@
         }
 
         input.correct {
-            background-color: #dff0d8;
+            background-color: #dff0d8; /* Vert clair pour correct */
             border-color: #d6e9c6;
         }
 
         input.incorrect {
-            background-color: #f2dede;
+            background-color: #f2dede; /* Rouge clair pour incorrect */
             border-color: #ebccd1;
         }
 
@@ -88,16 +86,57 @@
             background-color: #3b75c3;
         }
 
+        #pKaTable {
+            width: 50%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+        }
+
+        #pKaTable th, #pKaTable td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        #pKaTable th {
+            background-color: #4a90e2;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
     <h1>Calcul du pHi</h1>
+
+    <p>Bienvenue sur cet outil interactif conçu pour vous aider à pratiquer les calculs de point isoélectrique (pHi) des peptides. À chaque rafraîchissement de la page, un nouveau peptide est généré aléatoirement, vous invitant à deviner les groupements spécifiques des acides aminés qui le composent. Identifiez les pKa associés et effectuez les calculs pour déterminer le pHi. Si vous avez des suggestions ou souhaitez explorer d'autres fonctionnalités, n'hésitez pas à nous contacter sur @les_glycerhums. Bonne chance et amusez-vous bien !</p>
 
     <p id="peptide"></p>
 
     <table id="chargeTable"></table>
 
     <button onclick="calculateAndCorrect()">Calculer et Corriger le pHi</button>
+
+    <h2>Tableau des pKa des groupements</h2>
+    <table id="pKaTable">
+        <thead>
+            <tr>
+                <th>Groupement</th>
+                <th>pKa</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>COOH</td><td>3.0</td></tr>
+            <tr><td>NH3+</td><td>8.0</td></tr>
+            <tr><td>Asp</td><td>4.0</td></tr>
+            <tr><td>Glu</td><td>4.0</td></tr>
+            <tr><td>His</td><td>6.0</td></tr>
+            <tr><td>Tyr</td><td>10.0</td></tr>
+            <tr><td>Lys</td><td>10.5</td></tr>
+            <tr><td>Arg</td><td>12.5</td></tr>
+        </tbody>
+    </table>
 
     <script>
         const pKaData = {
@@ -205,32 +244,4 @@
 
         function determineCharge(group, pKa) {
             if (group === 'COOH') {
-                return pKa < pKaData['COOH'] ? '0' : '-';
-            }
-            if (group === 'NH3+') {
-                return pKa < pKaData['NH3+'] ? '+' : '0';
-            }
-            if (group === 'His') {
-                return pKa < pKaData['His'] ? '+' : '0';
-            }
-            if (group === 'Tyr') {
-                return pKa < pKaData['Tyr'] ? '0' : '-';
-            }
-            if (group === 'Arg') {
-                return pKa < pKaData['Arg'] ? '+' : '0';
-            }
-            if (group === 'Lys') {
-                return pKa < pKaData['Lys'] ? '+' : '0';
-            }
-            if (group === 'Asp') {
-                return pKa < pKaData['Asp'] ? '0' : '-';
-            }
-            if (group === 'Glu') {
-                return pKa < pKaData['Glu'] ? '0' : '-';
-            }
-
-            return '-';
-        }
-    </script>
-</body>
-</html>
+               
