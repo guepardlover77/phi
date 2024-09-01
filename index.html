@@ -129,12 +129,20 @@
         }
 
         function getpKaValues(peptide) {
-            let pKaValues = [{'group': 'COOH', 'pKa': pKaData['COOH']}]; 
+            let pKaGroups = new Set();
+            pKaGroups.add({ group: 'COOH', pKa: pKaData['COOH'] });
+
             peptide.forEach(aa => {
-                if (pKaData[aa]) pKaValues.push({'group': aa, 'pKa': pKaData[aa]});
+                if (aa === 'Asp' || aa === 'Glu') {
+                    pKaGroups.add({ group: aa, pKa: pKaData['Asp'] }); 
+                } else if (pKaData[aa]) {
+                    pKaGroups.add({ group: aa, pKa: pKaData[aa] });
+                }
             });
-            pKaValues.push({'group': 'NH3+', 'pKa': pKaData['NH3+']});
-            return pKaValues.sort((a, b) => a.pKa - b.pKa);
+
+            pKaGroups.add({ group: 'NH3+', pKa: pKaData['NH3+'] });
+
+            return Array.from(pKaGroups).sort((a, b) => a.pKa - b.pKa);
         }
 
         function generateTable(pKaValues) {
@@ -142,29 +150,27 @@
             let headerRow = table.insertRow();
             headerRow.insertCell().textContent = "Groupement";
 
+            let uniquePKaValues = [];
             pKaValues.forEach(pKaObj => {
-                let cell = headerRow.insertCell();
-                cell.textContent = `${pKaObj.pKa} (${pKaObj.group})`;
+                if (!uniquePKaValues.includes(pKaObj.pKa)) {
+                    uniquePKaValues.push(pKaObj.pKa);
+                    let cell = headerRow.insertCell();
+                    cell.textContent = pKaObj.pKa;
+                }
             });
 
-            let peptideGroups = [{'group': 'COOH', 'pKa': pKaData['COOH']}]; 
-            peptide.forEach(aa => {
-                if (pKaData[aa]) peptideGroups.push({'group': aa, 'pKa': pKaData[aa]});
-            });
-            peptideGroups.push({'group': 'NH3+', 'pKa': pKaData['NH3+']});
-
-            peptideGroups.forEach(groupObj => {
+            pKaValues.forEach(groupObj => {
                 let row = table.insertRow();
                 let cell = row.insertCell();
-                cell.textContent = groupObj.group; 
+                cell.textContent = groupObj.group;
 
-                pKaValues.forEach(pKaObj => {
+                uniquePKaValues.forEach(pKa => {
                     let inputCell = row.insertCell();
                     let input = document.createElement('input');
                     input.type = 'text';
                     input.style.width = '30px';
                     input.setAttribute('data-group', groupObj.group);
-                    input.setAttribute('data-pKa', pKaObj.pKa);
+                    input.setAttribute('data-pKa', pKa);
                     inputCell.appendChild(input);
                 });
             });
